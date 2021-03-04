@@ -1,9 +1,8 @@
 import os
 from Bio import SeqIO, Entrez
-import gzip
 
-#os.mkdir("MiniProject_Delaney_Sauer")
-os.chdir("MiniProject_Delaney_Sauer")
+os.mkdir("MiniProject_Delaney_Sauer")
+#os.chdir("MiniProject_Delaney_Sauer")
 outfile = open("miniProjectLog.log",'w')
 
 ##1. First, retrieve the following transcriptomes from two patient donors
@@ -20,7 +19,7 @@ os.system("wget " + d12)
 os.system("wget " + d16)
 os.system("wget " + d22)
 os.system("wget " + d26)
-#files are under the last SRX number in the url 
+ 
 #need to create fastq files using fastq dump
 os.system("fastq-dump -I --split-files SRR5660030.1")
 os.system("fastq-dump -I --split-files SRR5660033.1")
@@ -36,7 +35,6 @@ Entrez.email = "delaneyjosauer@gmail.com.com"
 term = 'EF999921'
 handle = Entrez.efetch(db="nucleotide", id=[term], rettype="gb") #searching genbak via Entrez
 record = SeqIO.read(handle, "genbank")#read the genbank file
-
 count = 0
 index = open("kalIndex.fasta","w")
 for feature in record.features:
@@ -63,6 +61,7 @@ os.system("kallisto quant -i index.idx -o SRR5660045 -b 30 -t 2 SRR5660045.1_1.f
 
 #need to create text file with paths for r script
 kalTable = open("kalTable.txt",'w')
+kalTable.write("sample    condition    path" + "\n")
 kalTable.write("SRR5660030 D12 SRR5660030" + "\n")
 kalTable.write("SRR5660033 D16 SRR5660033" + "\n")
 kalTable.write("SRR5660044 D22 SRR5660044" + "\n")
@@ -73,16 +72,17 @@ kalTable.write("SRR5660045 D26 SRR5660045" + "\n")
 #os.system("wget https://github.com/d-sauer-9/MiniProject/blob/main/SleuthScript.R")
 #os.system("Rscript SleuthScript.R")
 #write to log the return
+outfile.write("As of 3/4, Sleuth component does not work")
 
 #running Bowtie 2
 os.system("wget https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/845/245/GCF_000845245.1_ViralProj14559/GCF_000845245.1_ViralProj14559_genomic.fna.gz")
 #GCF_000845245.1_ViralProj14559_genomic.fna.gz to create index
 os.system("bowtie2-build GCF_000845245.1_ViralProj14559_genomic.fna.gz HCMVRef")
 #do the mapping
-os.system("bowtie2 --quiet -x HCMVRef -1 SRR5660030.1_1.fastq -2 SRR5660030.1_2.fastq -S Donor1Day2.sam -S --al-conc-gz SRR5660030.1_mapped.fastq.gz")
-os.system("bowtie2 --quiet -x HCMVRef -1 SRR5660033.1_1.fastq -2 SRR5660033.1_2.fastq -S Donor1Day6.sam -S --al-conc-gz SRR5660033.1_mapped.fastq.gz")
-os.system("bowtie2 --quiet -x HCMVRef -1 SRR5660044.1_1.fastq -2 SRR5660044.1_2.fastq -S Donor2Day2.sam -S --al-conc-gz SRR5660044.1_mapped.fastq.gz")
-os.system("bowtie2 --quiet -x HCMVRef -1 SRR5660045.1_1.fastq -2 SRR5660045.1_2.fastq -S Donor2Day6.sam -S --al-conc-gz SRR5660045.1_mapped.fastq.gz")
+os.system("bowtie2 --quiet -x HCMVRef -1 SRR5660030.1_1.fastq -2 SRR5660030.1_2.fastq -S Donor1Day2.sam -S --al-conc-gz SRR5660030.1_mapped%.fq.gz")
+os.system("bowtie2 --quiet -x HCMVRef -1 SRR5660033.1_1.fastq -2 SRR5660033.1_2.fastq -S Donor1Day6.sam -S --al-conc-gz SRR5660033.1_mapped%.fq.gz")
+os.system("bowtie2 --quiet -x HCMVRef -1 SRR5660044.1_1.fastq -2 SRR5660044.1_2.fastq -S Donor2Day2.sam -S --al-conc-gz SRR5660044.1_mapped%.fq.gz")
+os.system("bowtie2 --quiet -x HCMVRef -1 SRR5660045.1_1.fastq -2 SRR5660045.1_2.fastq -S Donor2Day6.sam -S --al-conc-gz SRR5660045.1_mapped%.fq.gz")
 #this takes a long amount of time
 
 #find out to get num of reads before and after and write to log file
@@ -112,8 +112,8 @@ for record in SeqIO.parse("SRR5660045.1_1.fastq", "fastq"):
 outfile.write("Donor 2 (6dpi) had " + str(countd26) + " reads before Bowtie2 and " + str(countd262) + " reads after"  +"\n")
 
 #using Bowtie2 reads in SPAdes
-os.system("spades -k 55,77,99,127 -t 2 --only-assembler -s SRR5660030.1_mapped.fastq.gz -s SRR5660033.1_mapped.fastq.gz -s SRR5660044.1_mapped.fastq.gz -s SRR5660045.1_mapped.fastq.gz -o assembly/")
-outfile.write("SPAdes Command used: spades -k 55,77,99,127 -t 2 --only-assembler -s SRR5660030.1_mapped.fastq.gz -s SRR5660033.1_mapped.fastq.gz -s SRR5660044.1_mapped.fastq.gz -s SRR5660045.1_mapped.fastq.gz -o assembly/" + "\n")
+#os.system("spades -k 55,77,99,127 -t 2 --only-assembler -s SRR5660030.1_mapped%.fq.gz -s SRR5660033.1_mapped%.fq.gz -s SRR5660044.1_mapped%.fq.gz -s SRR5660045.1_mapped%.fq.gz -o assembly/")
+outfile.write("SPAdes Command used: spades -k 55,77,99,127 -t 2 --only-assembler -s SRR5660030.1_mapped%.fq.gz -s SRR5660033.1_mapped%.fq.gz -s SRR5660044.1_mapped%.fq.gz -s SRR5660045.1_mapped%.fq.gz -o assembly/" + "\n")
 
 #finding number of contigs > than 1000
 file = "assembly/contigs.fasta"
@@ -137,10 +137,20 @@ fastaMaker.write("> Longest Contig Read" + "\n" + str(longestContig))
 
 #using BLAST
 #for some reason, makeblastdb does not like the file in my repo, so I'm going to copy it into another file
-#database = open("database.fasta","w")
-#with open("databaseFasta.fasta",'r') as reader:
-	#list = reader.read()
-#print(list)
+database = open("database.fasta","w")
+reader = SeqIO.parse("databaseFasta.fasta",'fasta')
+for entry in reader:
+	database.write(">" + str(entry.id) + "\n" + str(entry.seq) + "\n")
+
 #make local database
+#as of 3/4 not working; says database.fasta is not a fasta file
 #os.system("makeblastdb -in database.fasta -out database -title database -dbtype nucl")
-#os.system("blastn -
+#os.system("blastn -query longestContig.fasta -db database out myResults.csv -outfmt 7")
+outfile.write("As of 3/4, BLAST component does not work")
+
+outfile.close()
+reader.close()
+database.close()
+fastaMaker.close()
+fileread.close()
+kalTable.close()

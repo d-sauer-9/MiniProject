@@ -112,7 +112,7 @@ for record in SeqIO.parse("SRR5660045.1_1.fastq", "fastq"):
 outfile.write("Donor 2 (6dpi) had " + str(countd26) + " reads before Bowtie2 and " + str(countd262) + " reads after"  +"\n")
 
 #using Bowtie2 reads in SPAdes
-#os.system("spades -k 55,77,99,127 -t 2 --only-assembler -s SRR5660030.1_mapped%.fq.gz -s SRR5660033.1_mapped%.fq.gz -s SRR5660044.1_mapped%.fq.gz -s SRR5660045.1_mapped%.fq.gz -o assembly/")
+os.system("spades -k 55,77,99,127 -t 2 --only-assembler -s SRR5660030.1_mapped%.fq.gz -s SRR5660033.1_mapped%.fq.gz -s SRR5660044.1_mapped%.fq.gz -s SRR5660045.1_mapped%.fq.gz -o assembly/")
 outfile.write("SPAdes Command used: spades -k 55,77,99,127 -t 2 --only-assembler -s SRR5660030.1_mapped%.fq.gz -s SRR5660033.1_mapped%.fq.gz -s SRR5660044.1_mapped%.fq.gz -s SRR5660045.1_mapped%.fq.gz -o assembly/" + "\n")
 
 #finding number of contigs > than 1000

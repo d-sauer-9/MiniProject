@@ -44,7 +44,7 @@ for feature in record.features:
 		name = name.replace("[","")
 		name = name.replace("]","")
 		CDS = ">" + name + "\n" + CDS #makes the seqeunces into fasta format
-		index.write(CDS) #makes kalIndex fasta
+		index.write(CDS + "\n") #makes kalIndex fasta
 		count += 1
 outfile.write("The HCMV genome (EF999921) has " + str(count) + " CDS." + "\n")
 
